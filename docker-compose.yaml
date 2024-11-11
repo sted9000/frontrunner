@@ -11,3 +11,13 @@ services:
       - ./jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     container_name: jenkins
+    entrypoint: |
+      bash -c '
+        mkdir -p /var/jenkins_home/.ssh &&
+        chmod 700 /var/jenkins_home/.ssh &&
+        touch /var/jenkins_home/.ssh/id_jenkins &&
+        chmod 600 /var/jenkins_home/.ssh/id_jenkins &&
+        ssh-keyscan github.com > /var/jenkins_home/.ssh/known_hosts &&
+        chmod 644 /var/jenkins_home/.ssh/known_hosts &&
+        chown -R jenkins:jenkins /var/jenkins_home/.ssh &&
+        exec /usr/local/bin/jenkins.sh'
