@@ -3,15 +3,22 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main  # Added PR trigger for better CI coverage
 
 env:
   MAESTRO_CLOUD_API_KEY: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
   APP_NAME: "FrontRunner"
+  SIMULATOR_NAME: "iPhone 14"
+  SIMULATOR_RUNTIME: "iOS-16-2"  # Explicitly specify iOS version
 
 jobs:
   ui-test:
     name: Run Maestro UI Tests
-    runs-on: macos-latest # Using macOS runner for iOS simulator
+    runs-on: macos-latest
+    timeout-minutes: 45  # Add timeout to prevent hanging builds
+    
     steps:
       - uses: actions/checkout@v3
 
@@ -19,53 +26,67 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-          cache: 'npm' # Changed from yarn to npm
+          cache: 'npm'
 
       - name: Install Dependencies with NPM
-        run: |
-          npm ci # Changed from npm install for cleaner installs in CI
-          
+        run: npm ci
+        
       - name: Setup Ruby for Cocoapods
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7'
+          ruby-version: '3.0'  # Updated Ruby version
           bundler-cache: true
           
       - name: Install Cocoapods
         run: |
           cd ios
-          pod install
+          pod install --repo-update  # Added repo-update flag
           cd ..
 
       - name: Install Maestro
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
-          export PATH="$PATH":"$HOME/.maestro/bin"
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH  # Better PATH handling
 
       - name: Build iOS App
         run: |
           cd ios
-          xcodebuild -workspace ${{env.APP_NAME}}.xcworkspace -scheme ${{env.APP_NAME}} -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          xcodebuild -workspace ${{env.APP_NAME}}.xcworkspace \
+            -scheme ${{env.APP_NAME}} \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath build \
+            -destination "platform=iOS Simulator,name=${{env.SIMULATOR_NAME}}" \
+            clean build  # Added clean and proper destination
 
       - name: Start iOS Simulator
         run: |
-          xcrun simctl boot "iPhone 14" || true
-          open /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app
+          xcrun simctl boot "${{env.SIMULATOR_NAME}}" || true
+          xcrun simctl list devices
+          open -a Simulator.app  # More reliable simulator opening
 
       - name: Start Metro Bundler
         run: |
-          npm start & # Changed from yarn to npm
-          sleep 10 # Wait for Metro to start
+          npx react-native start --port 8081 & 
+          sleep 30  # Increased wait time for Metro
 
       - name: Run Maestro Tests
         run: |
-          maestro test .maestro/flow.yaml
+          # Verify Maestro installation
+          maestro --version
+          
+          # Run tests with proper error handling
+          if ! maestro test .maestro/flow.yaml; then
+            echo "Maestro tests failed"
+            exit 1
+          fi
         
       - name: Upload Test Results
-        if: always()
+        if: always()  # This ensures artifacts are uploaded even if tests fail
         uses: actions/upload-artifact@v3
         with:
-          name: maestro-test-results
+          name: maestro-test-results-${{ github.sha }}  # Added commit SHA for unique artifacts
           path: |
             maestro/screenshots
             maestro/videos
+          retention-days: 14  # Added retention period
