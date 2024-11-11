@@ -1,0 +1,24 @@
+appId: ${APP_ID}
+name: Edit Market
+onFlowStart: 
+  - runFlow: ./components/setup.yaml
+onFlowComplete: 
+  - runFlow: ./components/teardown.yaml
+---
+### Home Screen
+- assertVisible: "FrontRunner"
+- tapOn: "Details"
+
+### Market Details Screen
+- assertVisible: "Market Details"
+- tapOn: "Edit"
+
+### Edit Source Screen
+- assertVisible: "Edit Sources"
+- tapOn:
+    id: "chip"
+    index: 0
+- tapOn: "Save Changes"
+
+### Market Details Screen
+- assertVisible: "Market Details"

@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: Delete Market
+onFlowStart: 
+  - runFlow: ./components/setup.yaml
+onFlowComplete: 
+  - runFlow: ./components/teardown.yaml
+---
+### Home Screen
+- assertVisible: "FrontRunner"
+- tapOn: "Details"
+
+### Market Details Screen
+- assertVisible: "Market Details"
+- tapOn: "Delete Market"
+
+### Home Screen
+- assertVisible: "FrontRunner"

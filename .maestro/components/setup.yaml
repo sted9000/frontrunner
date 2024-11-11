@@ -1,0 +1,10 @@
+# appId: org.reactjs.native.example.FrontRunner
+appId: org.reactjs.native.example.testuniquestringtedslocum
+name: Setup # Flow name
+tags: # Tags to help identify the flow
+    - "setup"
+env:
+    CLI_AI_KEY: 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
+---
+- launchApp:
+    clearState: true # Clears app state before running test

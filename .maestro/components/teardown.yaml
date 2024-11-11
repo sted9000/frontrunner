@@ -1,0 +1,6 @@
+appId: ${APP_ID}
+name: Teardown # Flow name
+tags: # Tags to help identify the flow
+    - "teardown"
+---
+- stopApp # Stops the app

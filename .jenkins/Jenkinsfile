@@ -1,0 +1,62 @@
+pipeline {
+    agent {
+        docker {
+            image 'reactnativecommunity/react-native-android:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock --network host'
+        }
+    }
+
+    environment {
+        ANDROID_HOME = '/opt/android/sdk'
+        NODE_VERSION = '18'
+    }
+
+    stages {
+        stage('Environment Check') {
+            steps {
+                // Let's verify our environment is set up correctly
+                sh '''
+                    echo "Node version: $(node -v)"
+                    echo "NPM version: $(npm -v)"
+                    echo "Android SDK location: $ANDROID_HOME"
+                    ls -l $ANDROID_HOME
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Android Build') {
+            steps {
+                sh '''
+                    cd android
+                    # Accept licenses
+                    yes | sdkmanager --licenses || true
+                    # Clean and build debug variant
+                    ./gradlew clean assembleDebug
+                '''
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'android/app/build/outputs/apk/debug/*.apk'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished!'
+        }
+        success {
+            echo 'Successfully built the app!'
+        }
+        failure {
+            echo 'Failed to build the app!'
+        }
+    }
+}
