@@ -75,3 +75,6 @@ yarn-error.log
 
 # Docker
 docker-compose.yaml
+
+# GitHub
+.github/
