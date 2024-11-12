@@ -20,7 +20,9 @@ target 'FrontRunner' do
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :hermes_enabled => true, # Add this line to explicitly enable Hermes
+    :fabric_enabled => false, # Add this to explicitly disable Fabric if not using it
   )
 
   target 'FrontRunnerTests' do
@@ -36,5 +38,13 @@ target 'FrontRunner' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+    
+    # Add this block to handle arm64 architecture for iOS Simulator
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
+        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+      end
+    end
   end
 end
