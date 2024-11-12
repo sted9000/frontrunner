@@ -2,3 +2,4 @@ appId: org.reactjs.native.example.FrontRunner
 ---
 - launchApp
 - assertVisible: {text: "FrontRunner"}
+- tapOn: {text: "Add Market"}
