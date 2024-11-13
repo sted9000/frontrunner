@@ -8,6 +8,10 @@ pipeline {
         FLOW_PATH = "${PROJECT_ROOT}/.maestro/flow.yaml"
     }
 
+    options {
+        withEnv(['BASH_ENV=/home/jenkins/.zshrc'])
+    }
+
     stages {
         stage('Print Environment') {
             steps {
@@ -25,8 +29,6 @@ pipeline {
             steps {
                 script {
                     sh '''       
-
-                        source ~/.zshrc
 
                         # Check Java installation
                         if ! java -version 2>&1 | grep -q "openjdk version"; then
@@ -63,7 +65,6 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        source ~/.zshrc
                         curl -Ls "https://get.maestro.mobile.dev" | bash
                         export PATH="$PATH:$HOME/.maestro/bin"
                     '''
