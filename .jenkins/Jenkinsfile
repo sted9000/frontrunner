@@ -26,19 +26,19 @@ pipeline {
                             exit 1
                         fi
                         echo "✓ Java is installed"
-
-                        # Check Node and NPM
-                        if ! command -v node &> /dev/null; then
-                            echo "❌ Node.js is not installed"
+                        
+                        # Verify Node.js can execute
+                        if ! node --version &> /dev/null; then
+                            echo "❌ Node.js is not working properly"
                             exit 1
                         fi
-                        echo "✓ Node.js is installed"
-
-                        if ! command -v npm &> /dev/null; then
-                            echo "❌ npm is not installed"
+                        echo "✓ Node.js $(node --version) is installed and working"
+                        
+                        if ! npm --version &> /dev/null; then
+                            echo "❌ npm is not working properly"
                             exit 1
                         fi
-                        echo "✓ npm is installed"
+                        echo "✓ npm $(npm --version) is installed and working"
 
                         # Check ANDROID_HOME
                         if [ -z "$ANDROID_HOME" ]; then
