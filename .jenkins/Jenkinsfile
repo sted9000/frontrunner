@@ -7,6 +7,13 @@ pipeline {
         APK_PATH = "${PROJECT_ROOT}/android/app/build/outputs/apk/debug/app-debug.apk"
         FLOW_PATH = "${PROJECT_ROOT}/.maestro/flow.yaml"
         ZSHRC_PATH = "${HOME}/.zshrc"
+        // Add Node.js path and other environment variables from .zshrc
+        PATH = """${sh(
+            returnStdout: true,
+            script: 'source ${HOME}/.zshrc && echo $PATH'
+        ).trim()}"""
+        // Add any other environment variables you need from .zshrc similarly
+        NODE_ENV = 'development'
     }
 
     stages {
@@ -16,16 +23,6 @@ pipeline {
                 checkout scm
             }
         }
-
-        stage('Setup Environment') {
-            steps {
-                script {
-                    sh '''
-                        source ${ZSHRC_PATH}
-                    '''
-                }
-            }
-        }   
 
         stage('Android Dependencies') {
             steps {
