@@ -6,6 +6,7 @@ pipeline {
         PROJECT_ROOT = "${WORKSPACE}"
         APK_PATH = "${PROJECT_ROOT}/android/app/build/outputs/apk/debug/app-debug.apk"
         FLOW_PATH = "${PROJECT_ROOT}/.maestro/flow.yaml"
+        ZSHRC_PATH = "${HOME}/.zshrc"
     }
 
     stages {
@@ -16,17 +17,20 @@ pipeline {
             }
         }
 
-                stage('Android Dependencies') {
+        stage('Setup Environment') {
             steps {
                 script {
                     sh '''
+                        source ${ZSHRC_PATH}
+                    '''
+                }
+            }
+        }   
 
-                        # Source zshrc to get environment variables
-                        source ~/.zshrc
-                        
-                        # Add Homebrew to PATH
-                        export PATH="/opt/homebrew/bin:$PATH"
-                        
+        stage('Android Dependencies') {
+            steps {
+                script {
+                    sh '''                        
                         # Check Java installation
                         if ! java -version 2>&1 | grep -q "openjdk version"; then
                             echo "❌ OpenJDK is not installed"
