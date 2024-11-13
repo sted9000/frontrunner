@@ -54,6 +54,43 @@ pipeline {
             }
         }
 
+        stage('Build APK') {
+            steps {
+                script {
+                    sh '''
+                        source ~/.zshrc
+                        
+                        # Install dependencies
+                        npm install
+                        
+                        # Bundle JavaScript
+                        npx react-native bundle --platform android \
+                            --dev false \
+                            --entry-file index.js \
+                            --bundle-output android/app/src/main/assets/index.android.bundle \
+                            --assets-dest android/app/src/main/res/
+                        
+                        # Create assets directory if needed
+                        mkdir -p android/app/src/main/assets
+                        
+                        # Clean and build debug APK
+                        cd android
+                        ./gradlew clean
+                        ./gradlew assembleDebug
+                        
+                        # Verify APK exists
+                        if [ ! -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
+                            echo "❌ Debug APK build failed - file not found"
+                            exit 1
+                        fi
+                        
+                        echo "✓ Debug APK built successfully"
+                        cd ..
+                    '''
+                }
+            }
+        }
+
         stage('Setup Maestro') {
             steps {
                 script {
