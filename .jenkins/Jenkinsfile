@@ -6,18 +6,10 @@ pipeline {
         PROJECT_ROOT = "${WORKSPACE}"
         APK_PATH = "${PROJECT_ROOT}/android/app/build/outputs/apk/debug/app-debug.apk"
         FLOW_PATH = "${PROJECT_ROOT}/.maestro/flow.yaml"
-    }
-
-    options {
-        withEnv(['BASH_ENV=/home/jenkins/.zshrc'])
+        SHELL_RC = "source ~/.zshrc"
     }
 
     stages {
-        stage('Print Environment') {
-            steps {
-                sh 'env'
-            }
-        }
 
         stage('Checkout SCM') {
             steps {
@@ -29,6 +21,8 @@ pipeline {
             steps {
                 script {
                     sh '''       
+
+                        ${SHELL_RC}
 
                         # Check Java installation
                         if ! java -version 2>&1 | grep -q "openjdk version"; then
@@ -76,10 +70,7 @@ pipeline {
             steps {
                 // Ensure we're in the project root
                 dir("${PROJECT_ROOT}") {
-                    sh '''
-                        # Ensure Maestro is in PATH
-                        export PATH="$PATH:$HOME/.maestro/bin"
-                        
+                    sh '''                 
                         # Run test with absolute paths
                         maestro cloud "${APK_PATH}" "${FLOW_PATH}"
                     '''
