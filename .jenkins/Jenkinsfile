@@ -70,6 +70,7 @@ pipeline {
                 // Ensure we're in the project root
                 dir("${PROJECT_ROOT}") {
                     sh '''                 
+                        source ~/.zshrc
                         # Run test with absolute paths
                         maestro cloud "${APK_PATH}" "${FLOW_PATH}"
                     '''
