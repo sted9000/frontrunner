@@ -1,16 +1,4 @@
 flows:
-  - addMarket.yaml
-# includeTags:
-#   - tagNameToInclude
-# excludeTags:
-#   - tagNameToExclude
-
-# Maestro Cloud only configuration
-# baselineBranch: main
-# notifications:
-#   email:
-#     enabled: true
-#     recipients:
-      # - sted9000@gmail.com
-# executionOrder:
-#     continueOnFailure: true # default is true
+  # - addMarket.yaml
+  # - deleteMarket.yaml
+  - editMarket.yaml

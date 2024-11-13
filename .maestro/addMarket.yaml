@@ -1,19 +1,17 @@
-appId: org.reactjs.native.example.testuniquestringtedslocum
-name: Add Market
-# onFlowStart: 
-#   - runFlow: ./components/setup.yaml
-# onFlowComplete: 
-#   - runFlow: ./components/teardown.yaml
+appId: ${APP_ID}  # The app id is the package name of the app
+name: Add Market  # The name of the flow
+onFlowStart: 
+  - runFlow: ./components/setup.yaml  # Run the setup flow
+onFlowComplete: 
+  - runFlow: ./components/teardown.yaml  # Run the teardown flow
 ---
-- launchApp:
-    clearState: true # Clears app state before running test
 
 ### Home Screen
-- assertVisible: "FrontRunner"
-- tapOn: "Add Market"
+- assertVisible: "FrontRunner"  # Assert that the "FrontRunner" title is visible
+- tapOn: "Add Market"  # Tap on the "Add Market" button
 
 ### Select Market Screen
-- assertVisible: "Select Market"
+- assertVisible: "Select Market"  # Assert that the "Select Market" screen is visible
 # Click the first market in the list
 - tapOn:
     id: "card"
@@ -21,7 +19,7 @@ name: Add Market
 - tapOn: "Continue"
 
 ### Select Sources Screen
-- assertVisible: "Select Sources"
+- assertVisible: "Select Sources"  # Assert that the "Select Sources" screen is visible
 # Add the first source
 - tapOn:
     id: "card"
@@ -33,6 +31,7 @@ name: Add Market
 - tapOn: "Confirm"
 
 ### Home Screen
-- assertVisible: "FrontRunner"
+- assertVisible: "FrontRunner"  # Assert that the "FrontRunner" title is visible
+# Todo: Assert that the new market is in the list
 
 - stopApp # Stops the app

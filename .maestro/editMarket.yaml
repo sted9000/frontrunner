@@ -11,6 +11,10 @@ onFlowComplete:
 
 ### Market Details Screen
 - assertVisible: "Market Details"
+- copyTextFrom: {id: "MarketCap"}  # Copy the marketcap text
+- runScript: scripts/marketcap.js  # Run validation script
+- assertTrue: ${output.marketCap}  # Assert that the marketcap is a number
+- takeScreenshot: {path: "./.maestro/screenshots/MarketDetails.png"}
 - tapOn: "Edit"
 
 ### Edit Source Screen

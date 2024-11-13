@@ -40,6 +40,7 @@ echo "${YELLOW}Cleaning npm cache and node_modules...${NC}"
 npm cache clean --force
 rm -rf node_modules
 rm -rf package-lock.json
+npx react-native clean-ios
 check_status "Clean npm and node_modules"
 
 # 2. Install node modules

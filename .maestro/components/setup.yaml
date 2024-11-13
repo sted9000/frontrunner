@@ -1,5 +1,5 @@
-# appId: org.reactjs.native.example.FrontRunner
-appId: org.reactjs.native.example.testuniquestringtedslocum
+appId: org.reactjs.native.example.FrontRunner
+# appId: org.reactjs.native.example.testuniquestringtedslocum
 name: Setup # Flow name
 tags: # Tags to help identify the flow
     - "setup"
