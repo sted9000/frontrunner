@@ -2,21 +2,24 @@ pipeline {
     agent any
     
     environment {
-        // Store workspace path for reference
+        // Base paths
         PROJECT_ROOT = "${WORKSPACE}"
         APK_PATH = "${PROJECT_ROOT}/android/app/build/outputs/apk/debug/app-debug.apk"
         FLOW_PATH = "${PROJECT_ROOT}/.maestro/flow.yaml"
-        ZSHRC_PATH = "${HOME}/.zshrc"
-        // Add Node.js path and other environment variables from .zshrc
-        PATH = """${sh(
+        
+        // Source all environment variables from .zshrc
+        ZSHRC_ENV = """${sh(
             returnStdout: true,
-            script: 'source ${HOME}/.zshrc && echo $PATH'
+            script: 'source ${HOME}/.zshrc && env'
         ).trim()}"""
-        // Add any other environment variables you need from .zshrc similarly
-        NODE_ENV = 'development'
     }
 
     stages {
+        stage('Print Environment') {
+            steps {
+                sh 'env'
+            }
+        }
 
         stage('Checkout SCM') {
             steps {
