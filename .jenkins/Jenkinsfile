@@ -16,6 +16,41 @@ pipeline {
             }
         }
 
+                stage('Android Dependencies') {
+            steps {
+                script {
+                    sh '''
+                        # Check Java installation
+                        if ! java -version 2>&1 | grep -q "openjdk version"; then
+                            echo "❌ OpenJDK is not installed"
+                            exit 1
+                        fi
+                        echo "✓ Java is installed"
+
+                        # Check Node and NPM
+                        if ! command -v node &> /dev/null; then
+                            echo "❌ Node.js is not installed"
+                            exit 1
+                        fi
+                        echo "✓ Node.js is installed"
+
+                        if ! command -v npm &> /dev/null; then
+                            echo "❌ npm is not installed"
+                            exit 1
+                        fi
+                        echo "✓ npm is installed"
+
+                        # Check ANDROID_HOME
+                        if [ -z "$ANDROID_HOME" ]; then
+                            echo "❌ ANDROID_HOME is not set"
+                            exit 1
+                        fi
+                        echo "✓ ANDROID_HOME is set"
+                    '''
+                }
+            }
+        }
+
         stage('Setup Maestro') {
             steps {
                 script {
