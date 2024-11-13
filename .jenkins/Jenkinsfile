@@ -6,7 +6,7 @@ pipeline {
         PROJECT_ROOT = "${WORKSPACE}"
         APK_PATH = "${PROJECT_ROOT}/android/app/build/outputs/apk/debug/app-debug.apk"
         FLOW_PATH = "${PROJECT_ROOT}/.maestro/flow.yaml"
-        SHELL_RC = "source ~/.zshrc"
+        SHELL_RC = "source \$HOME/.zshrc"
     }
 
     stages {
