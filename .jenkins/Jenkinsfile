@@ -1,50 +1,37 @@
-// .jenkins/Jenkinsfile
 pipeline {
     agent any
     
     environment {
-        APK_PATH = '../android/app/build/outputs/apk/debug/app-debug.apk'
-        FLOW_PATH = '../.maestro/flow.yaml'
-        REQUIRED_MAESTRO_VERSION = '1.33.0'  // Specify your required version
+        // Store workspace path for reference
+        PROJECT_ROOT = "${WORKSPACE}"
+        APK_PATH = "${PROJECT_ROOT}/android/app/build/outputs/apk/debug/app-debug.apk"
+        FLOW_PATH = "${PROJECT_ROOT}/.maestro/flow.yaml"
     }
 
     stages {
         stage('Setup Maestro') {
             steps {
                 script {
-                    def installMaestro = false
+                    // Print directories for debugging
+                    sh '''
+                        echo "Workspace: $WORKSPACE"
+                        echo "Current directory: $(pwd)"
+                        ls -la
+                    '''
                     
-                    // Check if Maestro exists and get version
-                    def currentVersion = sh(
-                        script: '''
-                            if command -v maestro >/dev/null 2>&1; then
-                                maestro --version | grep -oE '[0-9]+\\.[0-9]+\\.[0-9]+'
-                            else
-                                echo "NOT_INSTALLED"
-                            fi
-                        ''',
+                    def maestroInstalled = sh(
+                        script: 'which maestro || true',
                         returnStdout: true
                     ).trim()
-                    
-                    if (currentVersion == "NOT_INSTALLED") {
+
+                    if (!maestroInstalled) {
                         echo "Maestro not found. Installing..."
-                        installMaestro = true
-                    } else {
-                        echo "Found Maestro version: ${currentVersion}"
-                        
-                        // Compare versions (simple string comparison - could be more sophisticated)
-                        if (currentVersion < REQUIRED_MAESTRO_VERSION) {
-                            echo "Maestro version ${currentVersion} is older than required ${REQUIRED_MAESTRO_VERSION}. Updating..."
-                            installMaestro = true
-                        }
-                    }
-                    
-                    if (installMaestro) {
                         sh '''
                             curl -Ls "https://get.maestro.mobile.dev" | bash
                             export PATH="$PATH:$HOME/.maestro/bin"
-                            maestro --version
                         '''
+                    } else {
+                        echo "Maestro is already installed at: ${maestroInstalled}"
                     }
                 }
             }
@@ -52,10 +39,18 @@ pipeline {
 
         stage('Run Maestro Cloud Test') {
             steps {
-                dir('..') {
+                // Ensure we're in the project root
+                dir("${PROJECT_ROOT}") {
                     sh '''
+                        # Print current directory for verification
+                        pwd
+                        ls -la
+                        
+                        # Ensure Maestro is in PATH
                         export PATH="$PATH:$HOME/.maestro/bin"
-                        maestro cloud ${APK_PATH} ${FLOW_PATH}
+                        
+                        # Run test with absolute paths
+                        maestro cloud "${APK_PATH}" "${FLOW_PATH}"
                     '''
                 }
             }
