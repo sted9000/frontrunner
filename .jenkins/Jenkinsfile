@@ -20,6 +20,10 @@ pipeline {
             steps {
                 script {
                     sh '''
+
+                        # Source zshrc to get environment variables
+                        source ~/.zshrc
+                        
                         # Add Homebrew to PATH
                         export PATH="/opt/homebrew/bin:$PATH"
                         
