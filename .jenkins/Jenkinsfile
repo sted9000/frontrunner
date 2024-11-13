@@ -6,7 +6,6 @@ pipeline {
         PROJECT_ROOT = "${WORKSPACE}"
         APK_PATH = "${PROJECT_ROOT}/android/app/build/outputs/apk/debug/app-debug.apk"
         FLOW_PATH = "${PROJECT_ROOT}/.maestro/flow.yaml"
-        SHELL_RC = "source \$HOME/.zshrc"
     }
 
     stages {
@@ -22,7 +21,7 @@ pipeline {
                 script {
                     sh '''       
 
-                        ${SHELL_RC}
+                        source ~/.zshrc
 
                         # Check Java installation
                         if ! java -version 2>&1 | grep -q "openjdk version"; then
