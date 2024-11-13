@@ -1,62 +1,64 @@
+// .jenkins/Jenkinsfile
 pipeline {
-    agent {
-        docker {
-            image 'reactnativecommunity/react-native-android:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock --network host'
-        }
-    }
-
+    agent any
+    
     environment {
-        ANDROID_HOME = '/opt/android/sdk'
-        NODE_VERSION = '18'
+        APK_PATH = '../android/app/build/outputs/apk/debug/app-debug.apk'
+        FLOW_PATH = '../.maestro/flow.yaml'
+        REQUIRED_MAESTRO_VERSION = '1.33.0'  // Specify your required version
     }
 
     stages {
-        stage('Environment Check') {
+        stage('Setup Maestro') {
             steps {
-                // Let's verify our environment is set up correctly
-                sh '''
-                    echo "Node version: $(node -v)"
-                    echo "NPM version: $(npm -v)"
-                    echo "Android SDK location: $ANDROID_HOME"
-                    ls -l $ANDROID_HOME
-                '''
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Android Build') {
-            steps {
-                sh '''
-                    cd android
-                    # Accept licenses
-                    yes | sdkmanager --licenses || true
-                    # Clean and build debug variant
-                    ./gradlew clean assembleDebug
-                '''
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: 'android/app/build/outputs/apk/debug/*.apk'
+                script {
+                    def installMaestro = false
+                    
+                    // Check if Maestro exists and get version
+                    def currentVersion = sh(
+                        script: '''
+                            if command -v maestro >/dev/null 2>&1; then
+                                maestro --version | grep -oE '[0-9]+\\.[0-9]+\\.[0-9]+'
+                            else
+                                echo "NOT_INSTALLED"
+                            fi
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    
+                    if (currentVersion == "NOT_INSTALLED") {
+                        echo "Maestro not found. Installing..."
+                        installMaestro = true
+                    } else {
+                        echo "Found Maestro version: ${currentVersion}"
+                        
+                        // Compare versions (simple string comparison - could be more sophisticated)
+                        if (currentVersion < REQUIRED_MAESTRO_VERSION) {
+                            echo "Maestro version ${currentVersion} is older than required ${REQUIRED_MAESTRO_VERSION}. Updating..."
+                            installMaestro = true
+                        }
+                    }
+                    
+                    if (installMaestro) {
+                        sh '''
+                            curl -Ls "https://get.maestro.mobile.dev" | bash
+                            export PATH="$PATH:$HOME/.maestro/bin"
+                            maestro --version
+                        '''
+                    }
                 }
             }
         }
-    }
 
-    post {
-        always {
-            echo 'Pipeline finished!'
-        }
-        success {
-            echo 'Successfully built the app!'
-        }
-        failure {
-            echo 'Failed to build the app!'
+        stage('Run Maestro Cloud Test') {
+            steps {
+                dir('..') {
+                    sh '''
+                        export PATH="$PATH:$HOME/.maestro/bin"
+                        maestro cloud ${APK_PATH} ${FLOW_PATH}
+                    '''
+                }
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-appId: org.reactjs.native.example.FrontRunner
+# appId: org.reactjs.native.example.FrontRunner
+appId: com.frontrunner
 ---
 - launchApp
 - assertVisible: {text: "FrontRunner"}
